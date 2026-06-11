@@ -44,6 +44,29 @@ export function fmtSafety(state) {
   return { main: `${lo}–${hi}`, sub: 'estimated range', showTrue: false };
 }
 
+// --- financial estimates (top bar) ---------------------------------------
+function moneyWord(v) {
+  const x = Math.abs(v);
+  return x < 10 ? 'minimal' : x < 30 ? 'modest' : x < 70 ? 'solid' : x < 140 ? 'strong' : 'major';
+}
+
+// Expected revenue shown as a ±5% band around the forecast (the real result lands inside it).
+export function fmtRevenueEstimate(forecast, displayMode) {
+  if (displayMode === 'narrative') return `${moneyWord(forecast)} inflow`;
+  const lo = Math.round(forecast * 0.95);
+  const hi = Math.round(forecast * 1.05);
+  return `$${lo}–${hi}M`;
+}
+
+export function fmtCostEstimate(total, displayMode) {
+  if (displayMode === 'narrative') return `${moneyWord(total)} outlay`;
+  return `$${Math.round(total)}M`;
+}
+
+export function netWord(net) {
+  return net > 1 ? 'profitable' : net < -1 ? 'burning cash' : 'break-even';
+}
+
 // color class by metric value (green/amber/red)
 export function metricColor(value, { good = 66, ok = 40 } = {}) {
   if (value >= good) return 'good';

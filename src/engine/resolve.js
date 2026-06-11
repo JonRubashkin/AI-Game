@@ -266,7 +266,7 @@ export function resolveTurn(stateIn) {
   // 4) costs
   const salaries = draft.staff.filter((s) => s.hired).reduce((a, s) => a + s.salary, 0);
   const deptTotal = totalDeptSpend(draft);
-  const computeUpkeep = draft.resources.compute * 0.02;
+  const computeUpkeep = draft.resources.compute * COMPUTE.upkeepPerUnit;
   const costs = salaries + deptTotal + computeUpkeep;
   draft.resources.cash += revenue - costs;
   draft.ledger.revenueTotal += revenue;

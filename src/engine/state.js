@@ -185,6 +185,8 @@ export function createInitialState(setup) {
       usedEmergencyFunding: false,
       lastMarketRefreshTurn: 1,
       releasedThisTurn: false,
+      researchedThisTurn: false,
+      poachedThisTurn: false,
     },
 
     debug: {

@@ -337,6 +337,7 @@ export function resolveTurn(stateIn) {
     draft.turnPhase = 'plan';
     draft.pendingMods = {};
     draft.deck.current = [];
+    draft.flags.releasedThisTurn = false;
     // refresh hiring market periodically
     if (draft.turn - draft.flags.lastMarketRefreshTurn >= STAFF.marketRefreshEveryTurns) {
       const passives = new Set(draft.passives);

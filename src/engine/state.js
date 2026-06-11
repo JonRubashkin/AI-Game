@@ -184,6 +184,7 @@ export function createInitialState(setup) {
     flags: {
       usedEmergencyFunding: false,
       lastMarketRefreshTurn: 1,
+      releasedThisTurn: false,
     },
 
     debug: {

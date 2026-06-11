@@ -96,11 +96,13 @@ export function gameReducer(state, action) {
       };
     }
 
-    // ---- product release ----
+    // ---- product release (at most once per quarter) ----
     case 'RELEASE_PRODUCT': {
       if (state.turnPhase !== 'plan') return state;
+      if (state.flags.releasedThisTurn) return state;
       return withRng(state, (draft, rng) => {
         const mods = getMods(draft);
+        draft.flags.releasedThisTurn = true;
         draft.activeProducts = (draft.activeProducts || 0) + 1;
         draft.pendingMods.revenueMult = (draft.pendingMods.revenueMult ?? 1) * (1.18 * (mods.releaseSpeed ?? 1));
         // launch-day incident risk unless a hardliner protects you

@@ -14,8 +14,12 @@ function ActionBar({ state, dispatch, onFunding }) {
         <button disabled={!editable || state.resources.cash < computeCost} onClick={() => dispatch({ type: 'BUY_COMPUTE', units: 5 })}>
           🖥️ Buy 5 compute (−${computeCost}M)
         </button>
-        <button disabled={!editable} onClick={() => dispatch({ type: 'RELEASE_PRODUCT' })} title="Boosts revenue; small launch-incident risk">
-          🚀 Launch release
+        <button
+          disabled={!editable || state.flags.releasedThisTurn}
+          onClick={() => dispatch({ type: 'RELEASE_PRODUCT' })}
+          title={state.flags.releasedThisTurn ? 'Already launched a release this quarter' : 'Boosts revenue; small launch-incident risk (once per quarter)'}
+        >
+          {state.flags.releasedThisTurn ? '🚀 Released this quarter' : '🚀 Launch release'}
         </button>
         <button disabled={!editable || state.resources.cash < 8 || state.resources.compute < 5} onClick={() => dispatch({ type: 'RESEARCH_INITIATIVE' })} title="−$8M, −5 compute → capability">
           🧪 Research initiative

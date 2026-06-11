@@ -12,7 +12,7 @@ function Res({ label, value, sub, cls }) {
   );
 }
 
-export default function TopBar({ state, dispatch, onGlossary, onToggleDebug }) {
+export default function TopBar({ state, dispatch, onGlossary, onToggleDebug, onAbandon }) {
   const { resources: r, settings } = state;
   const dm = settings.displayMode;
   const safety = fmtSafety(state);
@@ -45,6 +45,7 @@ export default function TopBar({ state, dispatch, onGlossary, onToggleDebug }) {
       <div className="flex">
         <button className="ghost small" onClick={onGlossary} title="Help & Glossary">❔ Help</button>
         <button className="ghost small debug-btn" onClick={onToggleDebug} title="Toggle debug (`)">🐞 Debug</button>
+        {onAbandon && <button className="ghost small" onClick={onAbandon} title="Abandon run">⏏</button>}
         {!state.gameOver && (
           state.turnPhase === 'plan' ? (
             <button className="primary" onClick={() => dispatch({ type: 'PROCEED_TO_EVENTS' })}>

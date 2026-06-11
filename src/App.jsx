@@ -75,6 +75,7 @@ export default function App() {
         dispatch={dispatch}
         onGlossary={() => setShowGlossary(true)}
         onToggleDebug={() => { const n = !state.debug.open; setDebugPref(n); dispatch({ type: 'DEBUG_TOGGLE', open: n }); }}
+        onAbandon={() => { if (window.confirm('Abandon this run and return to setup? Your progress will be lost (your score will not be recorded).')) newRun(); }}
       />
       <div className="main-grid">
         <div className="col">

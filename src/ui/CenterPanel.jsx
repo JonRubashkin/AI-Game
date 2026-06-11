@@ -14,15 +14,27 @@ function ActionBar({ state, dispatch, onFunding }) {
         <button disabled={!editable || state.resources.cash < computeCost} onClick={() => dispatch({ type: 'BUY_COMPUTE', units: 5 })}>
           🖥️ Buy 5 compute (−${computeCost}M)
         </button>
-        <button disabled={!editable} onClick={() => dispatch({ type: 'RELEASE_PRODUCT' })} title="Boosts revenue; small launch-incident risk">
-          🚀 Launch release
+        <button
+          disabled={!editable || state.flags.releasedThisTurn}
+          onClick={() => dispatch({ type: 'RELEASE_PRODUCT' })}
+          title={state.flags.releasedThisTurn ? 'Already launched a release this quarter' : 'Boosts revenue; small launch-incident risk (once per quarter)'}
+        >
+          {state.flags.releasedThisTurn ? '🚀 Released this quarter' : '🚀 Launch release'}
         </button>
-        <button disabled={!editable || state.resources.cash < 8 || state.resources.compute < 5} onClick={() => dispatch({ type: 'RESEARCH_INITIATIVE' })} title="−$8M, −5 compute → capability">
-          🧪 Research initiative
+        <button
+          disabled={!editable || state.flags.researchedThisTurn || state.resources.cash < 8 || state.resources.compute < 5}
+          onClick={() => dispatch({ type: 'RESEARCH_INITIATIVE' })}
+          title={state.flags.researchedThisTurn ? 'Already ran a research initiative this quarter' : '−$8M, −5 compute → capability (once per quarter)'}
+        >
+          {state.flags.researchedThisTurn ? '🧪 Initiative done this quarter' : '🧪 Research initiative'}
         </button>
         <button disabled={!editable} onClick={onFunding}>💰 Funding round</button>
-        <button disabled={!editable || state.resources.cash < 18} onClick={() => dispatch({ type: 'POACH_RIVAL' })} title="−$18M, −trust → poach a rival's researcher">
-          🎯 Poach a rival
+        <button
+          disabled={!editable || state.flags.poachedThisTurn || state.resources.cash < 18}
+          onClick={() => dispatch({ type: 'POACH_RIVAL' })}
+          title={state.flags.poachedThisTurn ? 'Already attempted a poach this quarter' : "−$18M, −trust → poach a rival's researcher (once per quarter)"}
+        >
+          {state.flags.poachedThisTurn ? '🎯 Poached this quarter' : '🎯 Poach a rival'}
         </button>
       </div>
       <div className="muted mt" style={{ fontSize: 12 }}>

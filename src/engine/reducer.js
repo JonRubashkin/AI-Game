@@ -96,11 +96,13 @@ export function gameReducer(state, action) {
       };
     }
 
-    // ---- product release ----
+    // ---- product release (at most once per quarter) ----
     case 'RELEASE_PRODUCT': {
       if (state.turnPhase !== 'plan') return state;
+      if (state.flags.releasedThisTurn) return state;
       return withRng(state, (draft, rng) => {
         const mods = getMods(draft);
+        draft.flags.releasedThisTurn = true;
         draft.activeProducts = (draft.activeProducts || 0) + 1;
         draft.pendingMods.revenueMult = (draft.pendingMods.revenueMult ?? 1) * (1.18 * (mods.releaseSpeed ?? 1));
         // launch-day incident risk unless a hardliner protects you
@@ -120,14 +122,16 @@ export function gameReducer(state, action) {
       });
     }
 
-    // ---- research initiative ----
+    // ---- research initiative (at most once per quarter) ----
     case 'RESEARCH_INITIATIVE': {
       if (state.turnPhase !== 'plan') return state;
+      if (state.flags.researchedThisTurn) return state;
       const cashCost = 8;
       const computeCost = 5;
       if (state.resources.cash < cashCost || state.resources.compute < computeCost) return state;
       return withRng(state, (draft, rng) => {
         const mods = getMods(draft);
+        draft.flags.researchedThisTurn = true;
         draft.resources.cash -= cashCost;
         draft.resources.compute -= computeCost;
         const gain = rng.float(2, 5) * (mods.researchMult ?? 1) * (mods.researchEfficiency ? 1.2 : 1);
@@ -160,11 +164,13 @@ export function gameReducer(state, action) {
       };
     }
 
-    // ---- poach a rival's talent ----
+    // ---- poach a rival's talent (at most once per quarter) ----
     case 'POACH_RIVAL': {
       const cost = 18;
+      if (state.flags.poachedThisTurn) return state;
       if (state.resources.cash < cost) return state;
       return withRng(state, (draft, rng) => {
+        draft.flags.poachedThisTurn = true;
         draft.resources.cash -= cost;
         draft.resources.trust = clamp(draft.resources.trust - 3, 0, 100);
         if (rng.chance(0.6)) {

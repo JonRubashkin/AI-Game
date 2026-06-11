@@ -1,7 +1,7 @@
 // formulas.js — PURE functions for the core sim math. No randomness here except where a
 // roll value is passed in; this keeps them trivially unit-testable.
 
-import { REVENUE, CAPABILITY, SAFETY, INCIDENT } from '../data/balance.js';
+import { REVENUE, CAPABILITY, SAFETY, INCIDENT, COMPUTE } from '../data/balance.js';
 
 // ---- Department helpers -------------------------------------------------
 // dept budgets are stored directly as $M amounts the player allocates this quarter.
@@ -51,6 +51,36 @@ export function computeRevenue(state, mods = {}) {
     market,
     openSource,
   };
+}
+
+// ---- Forecasting (for the top-bar estimates) ----------------------------
+// Best estimate of THIS quarter's revenue at planning time. Turn resolution grows
+// capability BEFORE computing revenue, so we project that growth here to stay close
+// to the real result. Stochastic shocks (incidents, breakthroughs) are intentionally
+// excluded — they're unknowable in advance. The UI shows a ±5% band around this.
+export function forecastRevenue(state, mods = {}) {
+  const gain = capabilityGain(state, mods);
+  const projected = {
+    ...state,
+    resources: {
+      ...state.resources,
+      capability: Math.min(100, state.resources.capability + gain),
+    },
+  };
+  if (state.pendingMods && state.pendingMods.marketCrash) {
+    projected.marketConditions = Math.max(0.5, (state.marketConditions ?? 1) * 0.8);
+  }
+  const revMods = { ...mods, revenueMult: (state.pendingMods && state.pendingMods.revenueMult) ?? 1 };
+  return computeRevenue(projected, revMods).revenue;
+}
+
+// Known, exact costs for this quarter. Recomputed from current state, so it updates
+// the instant the player changes budgets, staff, or compute.
+export function expectedCosts(state) {
+  const salaries = state.staff.filter((s) => s.hired).reduce((a, s) => a + s.salary, 0);
+  const dept = totalDeptSpend(state);
+  const upkeep = state.resources.compute * COMPUTE.upkeepPerUnit;
+  return { salaries, dept, upkeep, total: salaries + dept + upkeep };
 }
 
 // ---- Capability growth --------------------------------------------------

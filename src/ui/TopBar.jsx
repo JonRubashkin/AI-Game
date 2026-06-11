@@ -1,10 +1,12 @@
 import React from 'react';
-import { fmtResource, fmtSafety, metricColor, quarterLabel } from './display.js';
+import { fmtResource, fmtSafety, metricColor, quarterLabel, fmtRevenueEstimate, fmtCostEstimate, netWord } from './display.js';
 import { REGULATION } from '../data/balance.js';
+import { getMods } from '../engine/mods.js';
+import { forecastRevenue, expectedCosts } from '../engine/formulas.js';
 
-function Res({ label, value, sub, cls }) {
+function Res({ label, value, sub, cls, title }) {
   return (
-    <div className={'res' + (cls ? ' ' + cls : '')}>
+    <div className={'res' + (cls ? ' ' + cls : '')} title={title}>
       <div className="label">{label}</div>
       <div className="val">{value}</div>
       {sub && <div className="sub">{sub}</div>}
@@ -17,6 +19,18 @@ export default function TopBar({ state, dispatch, onGlossary, onToggleDebug, onA
   const dm = settings.displayMode;
   const safety = fmtSafety(state);
   const canEnd = state.turnPhase === 'plan' || state.deck.current.every((c) => c.resolved);
+
+  // Live financial estimates for this quarter. Recomputed every render, so costs update
+  // immediately when budgets/staff/compute change; revenue is a ±5% forecast.
+  const mods = getMods(state);
+  const forecast = forecastRevenue(state, mods);
+  const costs = expectedCosts(state);
+  const net = forecast - costs.total;
+  const netStr =
+    dm === 'narrative'
+      ? netWord(net)
+      : `net ${net >= 0 ? '+' : '−'}$${Math.abs(Math.round(net))}M`;
+  const costTitle = `Salaries $${Math.round(costs.salaries)}M · Departments $${Math.round(costs.dept)}M · Compute upkeep $${costs.upkeep.toFixed(1)}M`;
 
   return (
     <div className="topbar">
@@ -34,6 +48,18 @@ export default function TopBar({ state, dispatch, onGlossary, onToggleDebug, onA
           label="Strikes"
           value={`${state.ledger.strikes}/${REGULATION.maxStrikes}`}
           cls={state.ledger.strikes >= 2 ? 'bad' : state.ledger.strikes === 1 ? 'ok' : ''}
+        />
+        <Res
+          label="Est. Revenue"
+          value={fmtRevenueEstimate(forecast, dm)}
+          sub="this quarter (±5%)"
+          cls="good"
+        />
+        <Res
+          label="Est. Costs"
+          value={fmtCostEstimate(costs.total, dm)}
+          sub={<span style={{ color: net >= 0 ? 'var(--good)' : 'var(--bad)' }}>{netStr}</span>}
+          title={costTitle}
         />
       </div>
 

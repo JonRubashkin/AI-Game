@@ -101,6 +101,7 @@ export const INCIDENT = {
 export const COMPUTE = {
   pricePerUnit: 1.2, // $M per unit to buy outright
   leasePerUnit: 0.35, // $M per unit per turn to lease
+  upkeepPerUnit: 0.02, // $M per unit per quarter to keep running
   priceVolatility: 0.4, // swings driven by events/market
 };
 

@@ -29,7 +29,7 @@ export const DIFFICULTY = {
 
 // Baseline starting resources (before archetype/custom/difficulty modifiers).
 export const START = {
-  cash: 100, // $M
+  cash: 120, // $M
   compute: 20, // units
   capability: 10,
   trust: 55,
@@ -40,9 +40,10 @@ export const START = {
 
 // --- Revenue model -------------------------------------------------------
 export const REVENUE = {
-  base: 8, // $M baseline scale
+  base: 17, // $M baseline scale
   capExponent: 1.15, // capability has slightly increasing returns on revenue
-  capDivisor: 50, // capability/ capDivisor feeds the capability factor
+  capDivisor: 40, // capability / capDivisor feeds the capability factor
+  capFloor: 0.7, // baseline revenue even at low capability
   productWeight: 0.9, // how much product dept investment matters
   marketingWeight: 0.8,
   trustPivot: 50, // trust above this multiplies >1, below <1
@@ -65,9 +66,9 @@ export const CAPABILITY = {
 // --- Safety model --------------------------------------------------------
 export const SAFETY = {
   spendDivisor: 16, // safety $ -> true safety gain
-  redteamRaise: 0.35, // fraction of eval spend that also nudges true safety up
-  decayPerTurn: 0.6, // natural drift down (entropy / capability outpacing safety)
-  capabilityPressure: 0.04, // each capability point above safety pressures safety down
+  redteamRaise: 0.25, // fraction of eval spend that also nudges true safety up
+  decayPerTurn: 1.1, // natural drift down (entropy / capability outpacing safety)
+  capabilityPressure: 0.06, // each capability point above safety pressures safety down
   // interval narrowing: each $ of eval spend shrinks the half-interval
   evalNarrowPerUnit: 1.6,
   evalSpendDivisor: 1, // eval spend is taken from safety dept allocation fraction

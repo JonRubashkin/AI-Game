@@ -140,11 +140,11 @@ export function createInitialState(setup) {
 
     // department budgets in $M, allocated each quarter. Unspent cash simply stays as cash.
     departments: {
-      research: 12,
-      safety: 8,
-      product: 12,
-      marketing: 6,
-      policy: 4,
+      research: 10,
+      safety: 6,
+      product: 9,
+      marketing: 4,
+      policy: 3,
     },
     evalFraction: 0.4, // fraction of the SAFETY dept budget spent on evaluations (narrows interval)
 

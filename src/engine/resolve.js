@@ -46,8 +46,9 @@ function resolveRivals(draft, rng, mods, log) {
     const growth = def.capGrowth * rng.float(0.6, 1.4);
     r.capability = clamp(r.capability + growth, 0, 100);
 
-    // trust drift toward archetype baseline
-    r.trust = clamp(r.trust + rng.float(-2, 2) + (def.archetype === 'cautious' ? 1 : 0), 0, 100);
+    // trust reverts toward the rival's archetype target (keeps labs differentiated)
+    const target = def.trustTarget ?? 55;
+    r.trust = clamp(r.trust + (target - r.trust) * 0.18 + rng.float(-2, 2), 0, 100);
 
     // rival incident
     const incP = 0.05 * def.incidentProneness * aggression * (r.capability / 50);
@@ -101,16 +102,19 @@ const FLAVOR_HEADLINES = [
 ];
 
 // ------------------------------------------------------------------ market share
+function rivalShareMult(id) {
+  return (RIVALS.find((x) => x.id === id) || {}).shareMult ?? 1;
+}
 function updateMarketShare(draft, playerRevenue) {
-  // crude: share tracks relative capability×trust strength among living players
-  const strength = (e) => Math.max(1, e.capability) * (0.5 + e.trust / 100);
-  const playerStrength = Math.max(1, draft.resources.capability) * (0.5 + draft.resources.trust / 100);
-  const rivalStrengths = draft.rivals.filter((r) => r.alive).map((r) => strength(r));
+  // share tracks relative capability×trust strength, weighted by each lab's market footprint
+  const strength = (cap, trust, mult) => Math.max(1, cap) * (0.5 + trust / 100) * mult;
+  const playerStrength = strength(draft.resources.capability, draft.resources.trust, 1.0);
+  const living = draft.rivals.filter((r) => r.alive);
+  const rivalStrengths = living.map((r) => strength(r.capability, r.trust, rivalShareMult(r.id)));
   const total = playerStrength + rivalStrengths.reduce((a, b) => a + b, 0);
   draft.playerShare = (playerStrength / total) * 100;
-  const living = draft.rivals.filter((r) => r.alive);
-  living.forEach((r) => {
-    r.share = (strength(r) / total) * 100;
+  living.forEach((r, i) => {
+    r.share = (rivalStrengths[i] / total) * 100;
   });
 }
 
@@ -262,7 +266,7 @@ export function resolveTurn(stateIn) {
   // 4) costs
   const salaries = draft.staff.filter((s) => s.hired).reduce((a, s) => a + s.salary, 0);
   const deptTotal = totalDeptSpend(draft);
-  const computeUpkeep = draft.resources.compute * 0.04;
+  const computeUpkeep = draft.resources.compute * 0.02;
   const costs = salaries + deptTotal + computeUpkeep;
   draft.resources.cash += revenue - costs;
   draft.ledger.revenueTotal += revenue;

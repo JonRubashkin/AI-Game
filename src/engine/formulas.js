@@ -21,7 +21,7 @@ export function totalDeptSpend(state) {
 export function revenueFactors(state, mods = {}) {
   const cap = state.resources.capability;
   const trust = state.resources.trust;
-  const capFactor = Math.pow(Math.max(0, cap) / REVENUE.capDivisor, REVENUE.capExponent) + 0.4;
+  const capFactor = Math.pow(Math.max(0, cap) / REVENUE.capDivisor, REVENUE.capExponent) + REVENUE.capFloor;
 
   const productSpend = deptSpend(state, 'product');
   const marketingSpend = deptSpend(state, 'marketing');

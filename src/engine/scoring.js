@@ -40,12 +40,9 @@ export function computeSummary(state) {
 
   const finalScore = Math.round(companyValue * penalizedMult);
 
-  // rank by company-strength among living entities
-  const playerStrength = companyValue;
-  const rivalStrengths = state.rivals
-    .filter((r) => r.alive)
-    .map((r) => r.share * 12 + r.capability * 4);
-  const rank = 1 + rivalStrengths.filter((s) => s > playerStrength).length;
+  // rank by final market share among living entities (the headline leaderboard metric)
+  const rank =
+    1 + state.rivals.filter((r) => r.alive && r.share > playerShare).length;
 
   const summary = {
     finalScore,
